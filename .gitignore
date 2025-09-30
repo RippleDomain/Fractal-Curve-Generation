@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 #Image output.
 *.png
+
+#imgui.ini
+imgui.ini
