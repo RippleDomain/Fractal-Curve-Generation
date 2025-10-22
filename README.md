@@ -2,7 +2,7 @@
 
 A small, self-contained C++/OpenGL tool for drawing line segments, grouping them into polygons, applying recursive fractal transforms (Quadratic Type-2 Koch, Heighway Dragon), and exporting exactly what you see on the canvas to PNG. Scenes can be saved/loaded as JSON.
 
----
+<img width="1919" height="1079" alt="Ekran görüntüsü 2025-10-22 190902" src="https://github.com/user-attachments/assets/8aa47a85-4e2d-4fee-b703-a9924da01c2e" />
 
 ## Features
 
