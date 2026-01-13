@@ -16,14 +16,14 @@ public:
     void shutdown();
 
 private:
-    //Window/renderer/document.
+    // Window/renderer/document.
     GLFWwindow* win{ nullptr };
     int fbW{ 1280 }, fbH{ 720 };
     Renderer2D renderer;
     Document doc;
     History history;
 
-    //Creation state.
+    // Creation state.
     bool creating{ false };
     bool createHasDrag{ false };
     glm::vec2 createStart{};
@@ -31,16 +31,16 @@ private:
     int regularSides{ 6 };
     float regularRotation{ 0 };
 
-    //Chained polygon state (Tool::Poly).
+    // Chained polygon state (Tool::Poly).
     bool polyActive{ false };
     glm::vec2 polyFirst{}, polyLast{};
     std::vector<Id> polyLineIds;
 
-    //Snap visualization for poly close.
+    // Snap visualization for poly close.
     bool snapActive{ false };
     glm::vec2 snapPoint{};
 
-    //Interaction.
+    // Interaction.
     Tool tool{ Tool::Select };
     bool drawing{ false };
     glm::vec2 dragStart{};
@@ -58,22 +58,22 @@ private:
     Grab dragGrab{ Grab::None };
     std::vector<Id> dragIds;
     std::vector<glm::vec2> dragAStart, dragBStart;
-    glm::vec2 aStart{}, bStart{}; //Endpoints at mouse press.
-    glm::vec2 pressWorld{}; //World position at mouse press.
-    glm::vec2 midOffsetWorld{}; //For middle drags if you want an offset.
-    float dragEpsilon{ 0.001f }; //World units; pixels at zoom = 1.
+    glm::vec2 aStart{}, bStart{}; // Endpoints at mouse press.
+    glm::vec2 pressWorld{}; // World position at mouse press.
+    glm::vec2 midOffsetWorld{}; // For middle drags if you want an offset.
+    float dragEpsilon{ 0.001f }; // World units; pixels at zoom = 1.
 
-    //Style UI cache.
+    // Style UI cache.
     Color uiColor{ 1,1,1,1 };
     float uiThickness{ 3.f };
     int uiKoch{ 0 };
     int uiDragon{ 0 };
 
-    //Export.
+    // Export.
     std::string exportBase{ "canvas" };
     std::string exportDir;
 
-    //Helpers.
+    // Helpers.
     static void framebufferSizeCallback(GLFWwindow* w, int W, int H);
     glm::mat4 viewProj() const;
     glm::vec2 screenToWorld(double sx, double sy) const;
@@ -81,7 +81,7 @@ private:
     void updateEffect(Line& l);
     void rebuildEffectsIfDirty();
 
-    //Input.
+    // Input.
     void handleInput();
     void drawUI();
     void drawScene();

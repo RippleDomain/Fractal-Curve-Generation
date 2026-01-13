@@ -5,7 +5,7 @@
 #include <optional>
 #include "../render/Model.h"
 
-//Base command interface.
+// Base command interface.
 struct ICommand
 {
     virtual ~ICommand() = default;
@@ -15,7 +15,7 @@ struct ICommand
 
 using ICommandPtr = std::unique_ptr<ICommand>;
 
-//Undo/redo history (command stack).
+// Undo/redo history (command stack).
 struct History
 {
     std::vector<ICommandPtr> undoStack, redoStack;
@@ -52,7 +52,7 @@ struct History
     }
 };
 
-//Create/Delete.
+// Create/Delete.
 struct CmdCreateLine : ICommand
 {
     Line line;
@@ -109,7 +109,7 @@ struct CmdDeleteLine : ICommand
     }
 };
 
-//Create a full regular polygon (all edges + group) as one undo/redo step.
+// Create a full regular polygon (all edges + group) as one undo/redo step.
 struct CmdCreateRegularPolygon : ICommand
 {
     std::vector<Line> lines;
@@ -126,26 +126,26 @@ struct CmdCreateRegularPolygon : ICommand
         indices.clear();
         indices.reserve(lines.size());
 
-        //Insert lines.
+        // Insert lines.
         for (auto& l : lines)
         {
             indices.push_back(doc.originals.size());
             doc.originals.push_back(l);
         }
 
-        //Add group if missing.
+        // Add group if missing.
         if (!findRegPoly(doc, group.id))
         {
             doc.regPolys.push_back(group);
         }
 
-        //Link lines to the group.
+        // Link lines to the group.
         for (auto id : group.lineIds)
         {
             if (auto* L = findLine(doc, id)) L->groupId = group.id;
         }
 
-        //Select last edge.
+        // Select last edge.
         if (!group.lineIds.empty())
         {
             setSingleSelection(doc, group.lineIds.back());
@@ -154,19 +154,19 @@ struct CmdCreateRegularPolygon : ICommand
 
     void revert(Document& doc) override
     {
-        //Unlink lines.
+        // Unlink lines.
         for (auto id : group.lineIds)
         {
             if (auto* L = findLine(doc, id)) if (L->groupId == group.id) L->groupId = 0;
         }
 
-        //Remove lines.
+        // Remove lines.
         for (int i = (int)indices.size() - 1; i >= 0; --i)
         {
             doc.originals.erase(doc.originals.begin() + (ptrdiff_t)indices[i]);
         }
 
-        //Remove group.
+        // Remove group.
         for (size_t i = 0; i < doc.regPolys.size(); ++i)
         {
             if (doc.regPolys[i].id == group.id)
@@ -181,7 +181,7 @@ struct CmdCreateRegularPolygon : ICommand
     }
 };
 
-//Edit endpoints.
+// Edit endpoints.
 struct CmdEditEndpoints : ICommand
 {
     Id id{ 0 };
@@ -209,7 +209,7 @@ struct CmdEditEndpoints : ICommand
     }
 };
 
-//Move whole line.
+// Move whole line.
 struct CmdMoveLine : ICommand
 {
     Id id{ 0 };
@@ -237,7 +237,7 @@ struct CmdMoveLine : ICommand
     }
 };
 
-//Style change.
+// Style change.
 struct CmdStyle : ICommand
 {
     Id id{ 0 };
@@ -266,7 +266,7 @@ struct CmdStyle : ICommand
     }
 };
 
-//Transform changes.
+// Transform changes.
 struct CmdTransforms : ICommand
 {
     Id id{ 0 };
@@ -294,11 +294,11 @@ struct CmdTransforms : ICommand
     }
 };
 
-//Edit endpoints for many lines in one command.
+// Edit endpoints for many lines in one command.
 struct CmdEditManyEndpoints : ICommand
 {
     std::vector<Id> ids;
-    std::vector<glm::vec2> a0, b0, a1, b1; //Old/new endpoints.
+    std::vector<glm::vec2> a0, b0, a1, b1; // Old/new endpoints.
 
     CmdEditManyEndpoints(std::vector<Id> ids_,
         std::vector<glm::vec2> a0_, std::vector<glm::vec2> b0_,
@@ -330,7 +330,7 @@ struct CmdEditManyEndpoints : ICommand
     }
 };
 
-//Uniform style applied to many (each line remembers its own old style).
+// Uniform style applied to many (each line remembers its own old style).
 struct CmdStyleMany : ICommand
 {
     std::vector<Id> ids;
@@ -417,12 +417,12 @@ struct CmdTransformsMany : ICommand
     }
 };
 
-//Delete many (keeps indices so order is preserved).
+// Delete many (keeps indices so order is preserved).
 struct CmdDeleteMany : ICommand
 {
     std::vector<Id> ids;
     std::vector<Line> backups;
-    std::vector<size_t> indices; //Original positions.
+    std::vector<size_t> indices; // Original positions.
 
     explicit CmdDeleteMany(std::vector<Id> ids_)
         : ids(std::move(ids_))
@@ -434,7 +434,7 @@ struct CmdDeleteMany : ICommand
         backups.clear();
         indices.clear();
 
-        //Collect matches.
+        // Collect matches.
         for (size_t i = 0; i < doc.originals.size(); ++i)
         {
             if (std::find(ids.begin(), ids.end(), doc.originals[i].id) != ids.end())
@@ -444,7 +444,7 @@ struct CmdDeleteMany : ICommand
             }
         }
 
-        //Erase from highest index to lowest.
+        // Erase from highest index to lowest.
         for (int i = (int)indices.size() - 1; i >= 0; --i)
         {
             doc.originals.erase(doc.originals.begin() + (ptrdiff_t)indices[i]);
@@ -455,7 +455,7 @@ struct CmdDeleteMany : ICommand
 
     void revert(Document& doc) override
     {
-        //Restore in ascending index order.
+        // Restore in ascending index order.
         for (size_t i = 0; i < indices.size(); ++i)
         {
             doc.originals.insert(doc.originals.begin() + (ptrdiff_t)indices[i], backups[i]);
@@ -463,7 +463,7 @@ struct CmdDeleteMany : ICommand
     }
 };
 
-//Create/remove a RegularPolyGroup record (lines are created via CmdCreateLine).
+// Create/remove a RegularPolyGroup record (lines are created via CmdCreateLine).
 struct CmdCreateRegPolyGroup : ICommand
 {
     RegularPolyGroup group;
@@ -475,13 +475,13 @@ struct CmdCreateRegPolyGroup : ICommand
 
     void apply(Document& doc) override
     {
-        //Only add if missing.
+        // Only add if missing.
         if (!findRegPoly(doc, group.id))
         {
             doc.regPolys.push_back(group);
         }
 
-        //Re-attach line->group link in case lines were re-created.
+        // Re-attach line->group link in case lines were re-created.
         for (auto id : group.lineIds)
         {
             if (auto* l = findLine(doc, id)) l->groupId = group.id;
@@ -490,13 +490,13 @@ struct CmdCreateRegPolyGroup : ICommand
 
     void revert(Document& doc) override
     {
-        //Unlink lines.
+        // Unlink lines.
         for (auto id : group.lineIds)
         {
             if (auto* l = findLine(doc, id)) l->groupId = 0;
         }
 
-        //Remove group.
+        // Remove group.
         for (size_t i = 0; i < doc.regPolys.size(); ++i)
         {
             if (doc.regPolys[i].id == group.id)
@@ -508,7 +508,7 @@ struct CmdCreateRegPolyGroup : ICommand
     }
 };
 
-//Edit center/radius/rotation of a regular polygon as one undoable step.
+// Edit center/radius/rotation of a regular polygon as one undoable step.
 struct CmdRegularPolyParams : ICommand
 {
     Id groupId;
@@ -566,7 +566,7 @@ struct CmdRegularPolyParams : ICommand
     }
 };
 
-//Creates/removes an arbitrary polygon group and links/unlinks its edges.
+// Creates/removes an arbitrary polygon group and links/unlinks its edges.
 struct CmdCreateArbPolyGroup : ICommand
 {
     ArbitraryPolyGroup group;
@@ -578,14 +578,14 @@ struct CmdCreateArbPolyGroup : ICommand
 
     void apply(Document& doc) override
     {
-        //Add the group if it isn't already present.
+        // Add the group if it isn't already present.
         if (!findArbPoly(doc, group.id))
         {
             doc.arbPolys.push_back(group);
         }
         else
         {
-            //If present, refresh its line list (defensive in redo paths).
+            // If present, refresh its line list (defensive in redo paths).
             for (auto& gg : doc.arbPolys)
             {
                 if (gg.id == group.id)
@@ -596,7 +596,7 @@ struct CmdCreateArbPolyGroup : ICommand
             }
         }
 
-        //Link lines to this group.
+        // Link lines to this group.
         for (Id lid : group.lineIds)
         {
             if (auto* l = findLine(doc, lid)) l->groupId = group.id;
@@ -605,7 +605,7 @@ struct CmdCreateArbPolyGroup : ICommand
 
     void revert(Document& doc) override
     {
-        //Unlink lines.
+        // Unlink lines.
         for (Id lid : group.lineIds)
         {
             if (auto* l = findLine(doc, lid))
@@ -614,7 +614,7 @@ struct CmdCreateArbPolyGroup : ICommand
             }
         }
 
-        //Remove the group.
+        // Remove the group.
         for (size_t i = 0; i < doc.arbPolys.size(); ++i)
         {
             if (doc.arbPolys[i].id == group.id)

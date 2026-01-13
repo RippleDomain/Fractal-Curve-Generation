@@ -84,7 +84,7 @@ bool loadStateJSON(Document& doc, const std::string& path)
     return true;
 }
 
-//Replicates the apps viewProj but parameterized by width/height.
+// Replicates the apps viewProj but parameterized by width/height.
 static glm::mat4 makeViewProjFor(const Document& doc, int w, int h) 
 {
     float W = float(w), H = float(h);
@@ -101,11 +101,11 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
 {
     if (outW <= 0 || outH <= 0) return false;
 
-    //Save bindings/state we will touch.
+    // Save bindings/state we will touch.
     GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
     GLint prevViewport[4]; glGetIntegerv(GL_VIEWPORT, prevViewport);
 
-    //Create FBO.
+    // Create FBO.
     GLuint fbo = 0, color = 0, rbo = 0;
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -124,7 +124,7 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) 
     {
-        //Restore and clean up.
+        // Restore and clean up.
         glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
 
         if (rbo) glDeleteRenderbuffers(1, &rbo);
@@ -134,10 +134,10 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
         return false;
     }
 
-	//Viewport to FBO size.
+	// Viewport to FBO size.
     glViewport(0, 0, outW, outH);
 
-    //Clear and set 2D states.
+    // Clear and set 2D states.
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
@@ -145,11 +145,11 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
     glClearColor(0.12f, 0.12f, 0.125f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //Draw exactly like the canvas.
+    // Draw exactly like the canvas.
     const glm::mat4 VP = makeViewProjFor(doc, outW, outH);
     renderer.begin(VP);
 
-    //Effects. If effect cache is empty, draw the base segment.
+    // Effects. If effect cache is empty, draw the base segment.
     for (const auto& l : doc.originals) 
     {
         const std::vector<glm::vec2>& poly = l.effect.empty()
@@ -159,13 +159,13 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
         renderer.submitPolyline(poly, l.thicknessPx, l.color);
     }
 
-    //Originals.
+    // Originals.
     for (const auto& l : doc.originals) {
         Color c = l.color; c.a *= 0.35f;
         renderer.submitSegment(l.a, l.b, l.thicknessPx, c);
     }
 
-    //Selection handles.
+    // Selection handles.
     if (!doc.selection.empty()) 
     {
         const Color handle{ 1,1,0,1 };
@@ -179,7 +179,7 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
             }
         }
 
-        //Cyan center hint if any selected line belongs to a regular polygon.
+        // Cyan center hint if any selected line belongs to a regular polygon.
         const RegularPolyGroup* g = nullptr;
 
         for (auto id : doc.selection) 
@@ -195,11 +195,11 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
 
     renderer.end();
 
-    //Read back pixels.
+    // Read back pixels.
     std::vector<unsigned char> pixels(size_t(outW) * size_t(outH) * 4);
     glReadPixels(0, 0, outW, outH, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-    //Flip rows.
+    // Flip rows.
     const size_t stride = size_t(outW) * 4;
     std::vector<unsigned char> row(stride);
 
@@ -213,10 +213,10 @@ bool saveCanvasPNG(Renderer2D& renderer, const Document& doc, int outW, int outH
         std::memcpy(bot, row.data(), stride);
     }
 
-    //Write PNG.
+    // Write PNG.
     const int ok = stbi_write_png(filename.c_str(), outW, outH, 4, pixels.data(), int(stride));
 
-    //Restore state.
+    // Restore state.
     glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
     glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 

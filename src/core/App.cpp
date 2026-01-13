@@ -14,7 +14,7 @@
 
 static const char* GLSL_VER = "#version 330";
 
-//Framebuffer/camera.
+// Framebuffer/camera.
 void App::framebufferSizeCallback(GLFWwindow*, int W, int H)
 {
     glViewport(0, 0, W, H);
@@ -43,7 +43,7 @@ glm::vec2 App::screenToWorld(double sx, double sy) const
     return (s - glm::vec2(W * 0.5f, H * 0.5f)) / doc.camZoom + doc.camCenter;
 }
 
-//Lifecycle.
+// Lifecycle.
 bool App::init(int w, int h, const std::string& title)
 {
     if (!glfwInit()) return false;
@@ -98,7 +98,7 @@ void App::shutdown()
     glfwTerminate();
 }
 
-//Effect cache.
+// Effect cache.
 void App::updateEffect(Line& l)
 {
     std::vector<glm::vec2> base{ l.a, l.b };
@@ -111,7 +111,7 @@ void App::rebuildEffectsIfDirty()
     for (auto& l : doc.originals) if (l.dirty) updateEffect(l);
 }
 
-//Picking.
+// Picking.
 void App::pickHover(double mx, double my)
 {
     hoveredId = 0;
@@ -140,7 +140,7 @@ void App::pickHover(double mx, double my)
     }
 }
 
-//Group helpers.
+// Group helpers.
 static void rebuildRegularPolyLines(Document& doc, RegularPolyGroup& g)
 {
     int N = std::max(3, g.sides);
@@ -189,7 +189,7 @@ static RegularPolyGroup* hitNearestRegCenter(Document& doc, const glm::vec2& wor
     return best;
 }
 
-//Input/interaction.
+// Input/interaction.
 void App::handleInput()
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -250,14 +250,14 @@ void App::handleInput()
     }
     else panning = false;
 
-    //Press.
+    // Press.
     if (justPressed)
     {
         pressWorld = world;
 
         if (tool == Tool::Select)
         {
-            //Center hit (regular polygon).
+            // Center hit (regular polygon).
             {
                 float tolPx = 6.f, tolWorld = tolPx / doc.camZoom;
                 if (RegularPolyGroup* gHit = hitNearestRegCenter(doc, world, tolWorld))
@@ -271,7 +271,7 @@ void App::handleInput()
                 }
             }
 
-            //Center hit on already-selected group.
+            // Center hit on already-selected group.
             {
                 RegularPolyGroup* g = nullptr;
                 for (auto id : doc.selection) { g = findRegPolyByLine(doc, id); if (g) break; }
@@ -380,7 +380,7 @@ void App::handleInput()
         }
     }
 
-    //Move.
+    // Move.
     if (lmbNow)
     {
         if (tool == Tool::Select && isDragging)
@@ -442,7 +442,7 @@ void App::handleInput()
         }
     }
 
-    //Release.
+    // Release.
     if (justReleased)
     {
         if (tool == Tool::Select && isDragging)
@@ -515,7 +515,7 @@ void App::handleInput()
             }
         }
 
-        //Finish creation.
+        // Finish creation.
         if (creating)
         {
             if (tool == Tool::Line)
@@ -626,7 +626,7 @@ void App::handleInput()
     lmbWasDown = lmbNow;
 }
 
-//Rendering.
+// Rendering.
 void App::drawScene()
 {
     rebuildEffectsIfDirty();
@@ -708,14 +708,14 @@ void App::drawScene()
     renderer.end();
 }
 
-//UI.
+// UI.
 void App::drawUI()
 {
     ImGui::Begin("Fractal Editor");
 
     if (ImGui::BeginTabBar("MainTabs", ImGuiTabBarFlags_Reorderable))
     {
-        //Select/Move.
+        // Select/Move.
         if (ImGui::BeginTabItem("Select/Move"))
         {
             tool = Tool::Select;
@@ -801,7 +801,7 @@ void App::drawUI()
             ImGui::EndTabItem();
         }
 
-        //Create.
+        // Create.
         if (ImGui::BeginTabItem("Create"))
         {
             if (ImGui::BeginTabBar("CreateTabs"))
@@ -861,7 +861,7 @@ void App::drawUI()
             ImGui::EndTabItem();
         }
 
-        //Style.
+        // Style.
         if (ImGui::BeginTabItem("Style"))
         {
             ImGui::Text("Style");
@@ -891,7 +891,7 @@ void App::drawUI()
             ImGui::EndTabItem();
         }
 
-        //Transforms.
+        // Transforms.
         if (ImGui::BeginTabItem("Transforms"))
         {
             ImGui::Text("Transforms");
@@ -913,7 +913,7 @@ void App::drawUI()
             ImGui::EndTabItem();
         }
 
-        //Canvas.
+        // Canvas.
         if (ImGui::BeginTabItem("Canvas"))
         {
             ImGui::Text("Canvas");
@@ -928,7 +928,7 @@ void App::drawUI()
             ImGui::EndTabItem();
         }
 
-        //Export.
+        // Export.
         if (ImGui::BeginTabItem("Export"))
         {
             static int outW = 1920, outH = 1080;
@@ -984,7 +984,7 @@ void App::drawUI()
     ImGui::End();
 }
 
-//Main loop.
+// Main loop.
 void App::run()
 {
     while (!glfwWindowShouldClose(win))

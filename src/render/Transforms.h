@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 
-//90 degree helpers.
+// 90 degree helpers.
 inline glm::vec2 rot90L(const glm::vec2& v)
 {
     return { -v.y, v.x };
@@ -15,7 +15,7 @@ inline glm::vec2 rot90R(const glm::vec2& v)
     return { v.y, -v.x };
 }
 
-//Quadratic type-2 Koch.
+// Quadratic type-2 Koch.
 inline std::vector<glm::vec2> applyKoch2Once(const std::vector<glm::vec2>& in)
 {
     if (in.size() < 2) return in;
@@ -43,11 +43,11 @@ inline std::vector<glm::vec2> applyKoch2Once(const std::vector<glm::vec2>& in)
             continue;
         }
 
-        const glm::vec2 f = d / L; //Forward.
-        const glm::vec2 n = rot90L(f); //Left-normal.
-        const float s = L * 0.25f; //Quarter step.
+        const glm::vec2 f = d / L; // Forward.
+        const glm::vec2 n = rot90L(f); // Left-normal.
+        const float s = L * 0.25f; // Quarter step.
 
-        //Emit interior anchors (1..7), then snap last to q.
+        // Emit interior anchors (1..7), then snap last to q.
         for (int k = 1; k <= 7; ++k)
         {
             out.push_back(p + f * (U[k] * s) + n * (V[k] * s));
@@ -59,7 +59,7 @@ inline std::vector<glm::vec2> applyKoch2Once(const std::vector<glm::vec2>& in)
     return out;
 }
 
-//Heighway dragon.
+// Heighway dragon.
 inline std::vector<glm::vec2> applyDragonOnce(const std::vector<glm::vec2>& in)
 {
     if (in.size() < 2) return in;
@@ -85,7 +85,7 @@ inline std::vector<glm::vec2> applyDragonOnce(const std::vector<glm::vec2>& in)
     return out;
 }
 
-//Iterate with a segment budget.
+// Iterate with a segment budget.
 inline std::vector<glm::vec2> iterateTransform(
     const std::vector<glm::vec2>& base,
     int koch2Iters,

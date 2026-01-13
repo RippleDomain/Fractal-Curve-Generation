@@ -7,10 +7,10 @@
 #include <algorithm>
 #include "Types.h"
 
-//Tools available in the editor.
+// Tools available in the editor.
 enum class Tool { Select, Line, Poly, RegularPoly };
 
-//Single original line.
+// Single original line.
 struct Line
 {
     Id id{ 0 };
@@ -18,37 +18,37 @@ struct Line
     Color color{};
     float thicknessPx{ 3.f };
 
-    //Transform chain config per original line.
+    // Transform chain config per original line.
     int koch2Iters{ 0 };
     int dragonIters{ 0 };
 
-    //Effect cache (expanded polyline).
+    // Effect cache (expanded polyline).
     bool dirty{ true };
     std::vector<glm::vec2> effect;
 
-    //Owning group (regular or arbitrary). Resolved during lookups.
+    // Owning group (regular or arbitrary). Resolved during lookups.
     Id groupId{ 0 };
 };
 
-//Regular polygon group: shared params drive its edge lines.
+// Regular polygon group: shared params drive its edge lines.
 struct RegularPolyGroup
 {
-    Id id{ 0 }; //Group ID (separate from line IDs).
-    std::vector<Id> lineIds; //Edges in document order.
+    Id id{ 0 }; // Group ID (separate from line IDs).
+    std::vector<Id> lineIds; // Edges in document order.
     glm::vec2 center{ 0,0 };
     float radius{ 0.f };
     int sides{ 0 };
-    float rotationDeg{ 0.f }; //Degrees.
+    float rotationDeg{ 0.f }; // Degrees.
 };
 
-//Arbitrary polygon group: keeps edges together as a shape.
+// Arbitrary polygon group: keeps edges together as a shape.
 struct ArbitraryPolyGroup
 {
     Id id{ 0 };
-    std::vector<Id> lineIds; //Edges in order or insertion order.
+    std::vector<Id> lineIds; // Edges in order or insertion order.
 };
 
-//All document state.
+// All document state.
 struct Document
 {
     std::vector<Line> originals;
@@ -60,12 +60,12 @@ struct Document
 
     std::vector<Id> selection;
 
-    //View.
+    // View.
     glm::vec2 camCenter{ 0,0 };
     float camZoom{ 1.f };
 };
 
-//----------Line Helpers----------
+// ----------Line Helpers----------
 inline Line* findLine(Document& d, Id id)
 {
     for (auto& l : d.originals) if (l.id == id) return &l;
@@ -78,7 +78,7 @@ inline const Line* findLine(const Document& d, Id id)
     return nullptr;
 }
 
-//----------Regular Poly Group Helpers----------
+// ----------Regular Poly Group Helpers----------
 inline RegularPolyGroup* findRegPoly(Document& d, Id groupId)
 {
     for (auto& g : d.regPolys) if (g.id == groupId) return &g;
@@ -127,7 +127,7 @@ inline const RegularPolyGroup* findRegPolyByLine(const Document& d, Id lineId)
     return nullptr;
 }
 
-//----------Arbitrary Poly Group Helpers----------
+// ----------Arbitrary Poly Group Helpers----------
 inline ArbitraryPolyGroup* findArbPoly(Document& d, Id groupId)
 {
     for (auto& g : d.arbPolys) if (g.id == groupId) return &g;
@@ -176,7 +176,7 @@ inline const ArbitraryPolyGroup* findArbPolyByLine(const Document& d, Id lineId)
     return nullptr;
 }
 
-//----------Selection Utilities----------
+// ----------Selection Utilities----------
 inline bool isSelected(const Document& d, Id id)
 {
     return std::find(d.selection.begin(), d.selection.end(), id) != d.selection.end();
